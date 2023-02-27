@@ -4,6 +4,7 @@
 
 <!-- badges: start -->
 [![Tests](https://github.com/sunbeam-labs/sbx_phase_finder/actions/workflows/tests.yml/badge.svg)](https://github.com/sunbeam-labs/sbx_phase_finder/actions/workflows/tests.yml)
+[![Super-Linter](https://github.com/sunbeam-labs/sbx_phase_finder/actions/workflows/linter.yml/badge.svg)](https://github.com/sunbeam-labs/sbx_phase_finder/actions/workflows/linter.yml)
 <!-- badges: end -->
 
 A [Sunbeam](https://github.com/sunbeam-labs/sunbeam) extension for identifying inversion sites in metagenomic reads using [PhaseFinder](https://github.com/XiaofangJ/PhaseFinder).
