@@ -51,7 +51,7 @@ rule phase_finder:
         "sbx_phase_finder_env.yml"
     params:
         script=get_phase_finder_path() + "PhaseFinder.py",
-        ref="/mnt/d/Penn/sunbeam/.tests/data/hosts/human.fasta",
+        ref=Cfg["sbx_phase_finder"]["ref_fp"],
         
     shell:
         """
