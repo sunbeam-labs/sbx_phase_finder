@@ -1,0 +1,14 @@
+name: sbx_phase_finder
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bioconda::biopython
+  - pandas
+  - samtools
+  - bowtie
+  - emboss
+  - conda-forge::libiconv # emboss
+  - bedops
+  - bedtools
+  - python=2.7
