@@ -2,9 +2,7 @@
 
 import sys
 
-TARGET_PHASE_FINDER = [
-    QC_FP / "inversions" / "inversions.txt"
-]
+TARGET_PHASE_FINDER = [QC_FP / "inversions" / "inversions.txt"]
 
 
 try:
@@ -27,7 +25,8 @@ def get_phase_finder_path() -> str:
 
 
 localrules:
-    all_phase_finder, aggregate_phase_finder
+    all_phase_finder,
+    aggregate_phase_finder,
 
 
 rule all_phase_finder:
@@ -52,7 +51,6 @@ rule phase_finder:
     params:
         script=get_phase_finder_path() + "PhaseFinder.py",
         ref=Cfg["sbx_phase_finder"]["ref_fp"],
-        
     shell:
         """
         RP1={input.rp1}
@@ -66,11 +64,14 @@ rule phase_finder:
         gzip ${{RP1%.gz}} ${{RP2%.gz}}
         """
 
+
 rule aggregate_phase_finder:
     input:
-        expand(QC_FP / "inversions" / "{sample}" / "out.ratio.txt", sample=Samples.keys()),
+        expand(
+            QC_FP / "inversions" / "{sample}" / "out.ratio.txt", sample=Samples.keys()
+        ),
     output:
-        QC_FP / "inversions" / "inversions.txt"
+        QC_FP / "inversions" / "inversions.txt",
     shell:
         """
         tail -n +1 {input} >> {output}
