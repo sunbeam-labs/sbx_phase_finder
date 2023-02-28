@@ -82,3 +82,7 @@ def test_full_run(run_sunbeam):
 
     # Check output
     assert os.path.exists(inversions_fp)
+    with open(inversions_fp) as f:
+        print(f.readlines())
+    with open(inversions_fp) as f:
+        assert "am_0171_0068_d5_0006:81079-81105-81368-81394\t30\t26\t0.46\t19\t14\t0.42\n" in f.readlines()
