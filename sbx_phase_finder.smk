@@ -34,18 +34,54 @@ rule all_phase_finder:
         TARGET_PHASE_FINDER,
 
 
-rule phase_finder:
+rule phase_finder_locate:
+    output:
+        tabs=QC_FP / "inversions" / "{sample}" / "test.einverted.tab",
+    log:
+        LOG_FP / "phase_finder_locate_{sample}.log",
+    benchmark:
+        BENCHMARK_FP / "phase_finder_locate_{sample}.tsv"
+    conda:
+        "sbx_phase_finder_env.yml"
+    params:
+        script=get_phase_finder_path() + "PhaseFinder.py",
+        ref=Cfg["sbx_phase_finder"]["ref_fp"],
+    shell:
+        """
+        python {params.script} locate -f {params.ref} -t {output.tabs} -g 15 85 -p 2>&1 | tee {log}
+        """
+
+rule phase_finder_create:
     input:
+        tabs=QC_FP / "inversions" / "{sample}" / "test.einverted.tab",
+    output:
+        ids=QC_FP / "inversions" / "{sample}" / "test.ID.fasta",
+    log:
+        LOG_FP / "phase_finder_create_{sample}.log",
+    benchmark:
+        BENCHMARK_FP / "phase_finder_create_{sample}.tsv"
+    conda:
+        "sbx_phase_finder_env.yml"
+    params:
+        script=get_phase_finder_path() + "PhaseFinder.py",
+        ref=Cfg["sbx_phase_finder"]["ref_fp"],
+    shell:
+        """
+        python {params.script} create -f {params.ref} -t {input.tabs} -s 1000 -i {output.ids} 2>&1 | tee {log}
+        """
+
+
+rule phase_finder_ratio:
+    input:
+        ids=QC_FP / "inversions" / "{sample}" / "test.ID.fasta",
         rp1=QC_FP / "cleaned" / "{sample}_1.fastq.gz",
         rp2=QC_FP / "cleaned" / "{sample}_2.fastq.gz",
     output:
-        tabs=QC_FP / "inversions" / "{sample}" / "test.einverted.tab",
-        ids=QC_FP / "inversions" / "{sample}" / "test.ID.fasta",
         ratio=QC_FP / "inversions" / "{sample}" / "out.ratio.txt",
     log:
-        LOG_FP / "phase_finder_{sample}.log",
+        LOG_FP / "phase_finder_ratio_{sample}.log",
     benchmark:
-        BENCHMARK_FP / "phase_finder_{sample}.tsv"
+        BENCHMARK_FP / "phase_finder_ratio_{sample}.tsv"
     conda:
         "sbx_phase_finder_env.yml"
     params:
@@ -57,11 +93,12 @@ rule phase_finder:
         RP2={input.rp2}
         RATIO={output.ratio}
         gzip -d {input.rp1} {input.rp2}
-        python {params.script} locate -f {params.ref} -t {output.tabs} -g 15 85 -p 2>&1 | tee {log} && \
-        python {params.script} create -f {params.ref} -t {output.tabs} -s 1000 -i {output.ids} 2>&1 | tee {log} && \
-        python {params.script} ratio -i {output.ids} -1 {input.rp1} -2 {input.rp2} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log} && \
-        gzip ${{RP1%.gz}} ${{RP2%.gz}} || \
-        gzip ${{RP1%.gz}} ${{RP2%.gz}}
+        if res=$(python {params.script} ratio -i {input.ids} -1 {input.rp1} -2 {input.rp2} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log}); then
+            gzip ${{RP1%.gz}} ${{RP2%.gz}}
+        else
+            gzip ${{RP1%.gz}} ${{RP2%.gz}}
+            exit 1
+        fi
         """
 
 
