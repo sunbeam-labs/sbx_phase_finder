@@ -51,6 +51,7 @@ rule phase_finder_locate:
         python {params.script} locate -f {params.ref} -t {output.tabs} -g 15 85 -p 2>&1 | tee {log}
         """
 
+
 rule phase_finder_create:
     input:
         tabs=QC_FP / "inversions" / "{sample}" / "test.einverted.tab",
@@ -93,7 +94,8 @@ rule phase_finder_ratio:
         RP2={input.rp2}
         RATIO={output.ratio}
         gzip -d {input.rp1} {input.rp2}
-        if res=$(python {params.script} ratio -i {input.ids} -1 {input.rp1} -2 {input.rp2} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log}); then
+        python {params.script} ratio -i {input.ids} -1 {input.rp1} -2 {input.rp2} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log}
+        if [ $? != 0 ]; then
             gzip ${{RP1%.gz}} ${{RP2%.gz}}
         else
             gzip ${{RP1%.gz}} ${{RP2%.gz}}
