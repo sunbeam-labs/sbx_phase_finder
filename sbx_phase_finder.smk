@@ -94,13 +94,8 @@ rule phase_finder_ratio:
         RP2={input.rp2}
         RATIO={output.ratio}
         gzip -d {input.rp1} {input.rp2}
-        python {params.script} ratio -i {input.ids} -1 {input.rp1} -2 {input.rp2} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log}
-        if [ $? != 0 ]; then
-            gzip ${{RP1%.gz}} ${{RP2%.gz}}
-        else
-            gzip ${{RP1%.gz}} ${{RP2%.gz}}
-            exit 1
-        fi
+
+        python {params.script} ratio -i {input.ids} -1 ${{RP1%.gz}} -2 ${{RP2%.gz}} -p 16 -o ${{RATIO%.ratio.txt}} 2>&1 | tee {log} || gzip ${{RP1%.gz}} ${{RP2%.gz}}
         """
 
 
